@@ -8,9 +8,13 @@ initCmdInput();
 ipc.on('timedb-reply', renderCalendar);
 ipc.on('cmd-validation', cmdValidation);
 
-ipc.send('timedb', '');
+function updateTimedb() {
+  ipc.send('timedb');
+}
+updateTimedb();
 
 function getCmdInput() {return document.querySelector('input#cmd');}
+
 function cmdValid(valid) {
   if (valid) {
     getCmdInput().classList.remove('invalid');
@@ -53,6 +57,7 @@ function updateFromInput(saveAndClear) {
     if (ipc.sendSync('cmd-and-save', cmd)) {
       input.value = '';
       cmdValid(true);
+      updateTimedb();
     } else {
       cmdValid(false);
     }
@@ -187,6 +192,8 @@ function renderCalendar(event, data) {
   renderSummary(currentDayDiv, issueSummary);
 
   let calendar = document.querySelector('#calendar');
+  calendar.innerHTML = "";
+
   days.reverse().forEach(function(element) {
     calendar.appendChild(element);
   });
