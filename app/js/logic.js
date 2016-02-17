@@ -13,6 +13,11 @@ function updateTimedb() {
 }
 updateTimedb();
 
+function formatTime(time) {
+  return (time.getHours() < 10 ? "0" : "") + time.getHours()
+      + (time.getMinutes() < 10 ? ":0" : ":") + time.getMinutes();
+}
+
 function getCmdInput() {return document.querySelector('input#cmd');}
 
 function cmdValid(valid) {
@@ -21,6 +26,21 @@ function cmdValid(valid) {
   } else {
     getCmdInput().classList.add('invalid');
   }
+}
+
+function modifyInputTime(value, minutesToAdd) {
+  let timeRegex = /@(\d\d\d\d-[0-1]\d-[0-3]\d |)(\d|[0-2]\d):([0-5]\d)$/;
+  let groups = value.match(timeRegex);
+  if (!groups) return value;
+
+  let newValue = value.substr(0, value.lastIndexOf('@') + 1);
+  newValue += groups[1]; // add whatever date stuff we had before the timeRegex
+
+  let time = new Date();
+  time.setHours(parseInt(groups[2]));
+  time.setMinutes(parseInt(groups[3]) + minutesToAdd);
+  newValue += formatTime(time);
+  return newValue;
 }
 
 function initCmdInput() {
@@ -37,8 +57,21 @@ function initCmdInput() {
     } else if (event.keyCode == 13) {
       // enter, update and clear
       updateFromInput(true);
+    } else if (event.keyCode == 38) { // arrow up
+      input.value = modifyInputTime(input.value, 1);
+    } else if (event.keyCode == 40) { // arrow down
+      input.value = modifyInputTime(input.value, -1);
     } else {
       inputTimer = window.setTimeout(updateFromInput, 1000);
+    }
+  });
+
+  input.addEventListener('keypress', function(event) {
+    let c = event.key || event.charCode || event.keyCode;
+    if (String.fromCharCode(c) == '@') {
+      // add current time as a default
+      input.value += '@' + formatTime(new Date());
+      event.preventDefault();
     }
   });
 
@@ -172,8 +205,7 @@ function renderCalendar(event, data) {
     }
 
     // create task text:
-    let text = (time.getHours() < 10 ? "0" : "") + time.getHours()
-        + (time.getMinutes() < 10 ? ":0" : ":") + time.getMinutes();
+    let text = formatTime(time);
     if (element.issue) {
       text += " " + element.issue;
     }

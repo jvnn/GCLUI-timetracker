@@ -60,14 +60,14 @@ input {
 }
 
 .day {
-  margin: 20px;
-  width: 200px;
+  margin: 14px;
+  width: 180px;
   display: inline-block;
   vertical-align: top;
 }
 
 .task {
-  width: 200px;
+  width: 180px;
   margin-bottom: 2px;
   border-radius: 4px;
   padding: 4px;
