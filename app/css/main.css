@@ -1,0 +1,109 @@
+body {
+  background-color: transparent;
+  color: #505050;
+  font-weight: lighter;
+}
+
+#frame {
+  -webkit-app-region: drag;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+h1 {
+  font-family: sans;
+  font-size: 16px;
+  margin: 20px 10px;
+  font-weight: lighter;
+}
+
+h2 {
+  font-family: sans;
+  font-size: 14px;
+  font-weight: lighter;
+  text-align: center;
+}
+
+#cmd-line {
+  width: 80%;
+  margin: auto;
+  padding-top: 40px;
+}
+
+.hidden {
+  display: none;
+}
+
+input {
+  -webkit-app-region: no-drag;
+  border: #a0a0a0 1px solid;
+  border-radius: 4px;
+  border-top: 0px;
+  border-right: 0px;
+  border-top-left-radius: 0px;
+  display: block;
+  width: 100%;
+  margin: 10px auto;
+}
+
+.invalid {
+  color: #ee4040;
+}
+
+#calendar {
+  -webkit-app-region: no-drag;
+  width: 90%;
+  margin: auto;
+}
+
+.day {
+  margin: 20px;
+  width: 200px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.task {
+  width: 200px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  padding: 4px;
+  font-size: 12px;
+  display: block;
+}
+
+.pause {
+  background-color: #d0d0d0;
+}
+
+.out {
+  background-color: #505050;
+  color: #f0f0f0;
+}
+
+.summary {
+  font-size: 12px;
+}
+
+#close {
+  -webkit-app-region: no-drag;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 24px;
+  text-align: center;
+  border-bottom-left-radius: 10px;
+  background-color: #f06070;
+  color: white;
+  font-family: sans;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#close:hover {
+  background-color: #d04050;
+}
