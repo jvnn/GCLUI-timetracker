@@ -111,24 +111,40 @@ const TASK_COLORS = [
   "#FFBBDD"
 ];
 
+function addSummaryElement(div, time, issue, special) {
+  let p = document.createElement('p');
+  p.classList.add('summary');
+  if (special) p.classList.add('summary-special');
+  let hoursDecimal = time / 3600000.0;
+  let hours = Math.floor(hoursDecimal);
+  let minutes = Math.floor((hoursDecimal - hours) * 60);
+  p.innerHTML = issue + " - " + hours + "h " + minutes + "m";
+  div.appendChild(p);
+}
+
 function renderSummary(div, summary) {
   if (!div || !summary) return;
+
+  if (summary["__total"]) {
+    addSummaryElement(div, summary["__total"], "Total", true);
+  }
+
+  if (summary["__pause"]) {
+    addSummaryElement(div, summary["__pause"], "Pause", true);
+  }
+
   for (let issue in summary) {
-    let p = document.createElement('p');
-    p.classList.add('summary');
-    let hoursDecimal = summary[issue] / 3600000.0;
-    let hours = Math.floor(hoursDecimal);
-    let minutes = Math.floor((hoursDecimal - hours) * 60);
-    p.innerHTML = issue + " - " + hours + "h " + minutes + "m";
-    div.appendChild(p);
+    if (!issue.startsWith("__")) {
+      addSummaryElement(div, summary[issue], issue, false);
+    }
   }
 }
 
-function updateSummary(summary, element, endTime) {
-  if (element && element.issue) {
-    let oldTime = summary[element.issue];
+function updateSummary(summary, startTimeStr, key, endTime) {
+  if (startTimeStr && key) {
+    let oldTime = summary[key];
     if (!oldTime) oldTime = 0;
-    summary[element.issue] = oldTime + (endTime - Date.parse(element.time));
+    summary[key] = oldTime + (endTime - Date.parse(startTimeStr));
   }
 }
 
@@ -136,7 +152,7 @@ function renderCalendar(event, data) {
   let days = [];
   let colorIndex = 0;
   let colorMap = {"__issueless": "#EACDC1"};
-  let onPause = false;
+  let pauseStartTime = null;
   let previous;
   let prevDate;
   let currentDayDiv;
@@ -170,12 +186,17 @@ function renderCalendar(event, data) {
       element = previous;
       element.time = tmp;
       time = new Date(element.time);
-    } else if (!onPause){
-      // new element closes the previous one, except for pause
-      updateSummary(issueSummary, previous, Date.parse(element.time));
+      updateSummary(issueSummary, pauseStartTime, "__pause", Date.parse(tmp));
+    } else if (pauseStartTime) {
+      // starting something new after a pause
+      updateSummary(issueSummary, pauseStartTime, "__pause", Date.parse(element.time));
+    } else if (previous) {
+      // new element closes the previous (non-pause) one
+      updateSummary(issueSummary, previous.time, previous.issue, Date.parse(element.time));
+      updateSummary(issueSummary, previous.time, "__total", Date.parse(element.time));
     }
 
-    onPause = element.type == 'away';
+    pauseStartTime = element.type == 'away' ? element.time : null;
 
     // set styles:
     switch (element.type) {
@@ -215,7 +236,7 @@ function renderCalendar(event, data) {
     newDiv.innerHTML = text;
 
     currentDayDiv.appendChild(newDiv);
-    if (!onPause) {
+    if (!pauseStartTime) {
       previous = element;
     }
   });
