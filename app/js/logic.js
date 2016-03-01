@@ -171,7 +171,7 @@ function renderCalendar(event, data) {
       currentDayDiv = document.createElement('div');
       currentDayDiv.classList.add('day');
       let title = document.createElement('h2');
-      title.innerHTML = time.getDate() + ". " + time.getMonth() + ". " + time.getFullYear();
+      title.innerHTML = time.getDate() + ". " + (time.getMonth() + 1) + ". " + time.getFullYear();  
       currentDayDiv.appendChild(title);
       days.push(currentDayDiv);
     }
