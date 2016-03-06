@@ -39,8 +39,10 @@ function parseDefine(cmd, cmdObject, fullRequired) {
   if (aliasEnd < 0) return fullRequired ? null : cmd;
 
   cmdObject.alias = cmd.substr(2, aliasEnd - 2).trim();
-  cmdObject.cmd = cmd.substr(aliasEnd).trim();
+  // aliases must be longer than 1 char to avoid mixing with commands
+  if (cmdObject.alias.length < 2) return null;
 
+  cmdObject.cmd = cmd.substr(aliasEnd).trim();
   return cmd;
 }
 

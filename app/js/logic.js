@@ -23,6 +23,12 @@ function getCmdInput() {return document.querySelector('input#cmd');}
 function cmdValid(valid) {
   if (valid) {
     getCmdInput().classList.remove('invalid');
+    // if the returned cmd is something totally different as what we have
+    // in the input field, it's probably autoexpanded alias
+    let currentValue = getCmdInput().value;
+    if (currentValue.indexOf(valid) != 0 && valid.indexOf(currentValue) != 0) {
+      getCmdInput().value = valid;
+    }
   } else {
     getCmdInput().classList.add('invalid');
   }
@@ -171,7 +177,7 @@ function renderCalendar(event, data) {
       currentDayDiv = document.createElement('div');
       currentDayDiv.classList.add('day');
       let title = document.createElement('h2');
-      title.innerHTML = time.getDate() + ". " + (time.getMonth() + 1) + ". " + time.getFullYear();  
+      title.innerHTML = time.getDate() + ". " + (time.getMonth() + 1) + ". " + time.getFullYear();
       currentDayDiv.appendChild(title);
       days.push(currentDayDiv);
     }
