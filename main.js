@@ -1,6 +1,6 @@
 'use strict';
 
-const DEBUG = true;
+const DEBUG = false;
 function debug(line) {
   if (DEBUG) console.log(line);
 }
