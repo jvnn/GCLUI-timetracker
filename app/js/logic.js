@@ -20,16 +20,16 @@ function formatTime(time) {
 
 function getCmdInput() {return document.querySelector('input#cmd');}
 
-function cmdValid(valid) {
-  if (valid) {
+function setValidState(newCmd) {
+  if (newCmd !== null) {
     getCmdInput().classList.remove('invalid');
     // if the returned cmd is something totally different as what we have
     // in the input field, and it used to be a string without spaces,
     // it's probably autoexpanded alias
     let currentValue = getCmdInput().value;
     if (currentValue.trim().indexOf(' ') < 0 &&
-        currentValue.indexOf(valid) != 0 && valid.indexOf(currentValue) != 0) {
-      getCmdInput().value = valid;
+        currentValue.indexOf(newCmd) != 0 && newCmd.indexOf(currentValue) != 0) {
+      getCmdInput().value = newCmd;
     }
   } else {
     getCmdInput().classList.add('invalid');
@@ -96,11 +96,11 @@ function updateFromInput(saveAndClear) {
   let cmd = input.value;
   if (saveAndClear) {
     let resp = ipc.sendSync('cmd-and-save', cmd);
-    if (resp) {
+    if (resp !== null) {
       input.value = '';
       updateTimedb();
     }
-    cmdValid(resp);
+    setValidState(resp);
   } else {
     ipc.send('cmd', cmd);
   }
@@ -259,8 +259,8 @@ function renderCalendar(event, data) {
   });
 }
 
-function cmdValidation(event, valid) {
-  cmdValid(valid);
+function cmdValidation(event, newCmd) {
+  setValidState(newCmd);
 }
 
 function close() {
