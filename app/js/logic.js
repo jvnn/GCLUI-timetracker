@@ -24,9 +24,11 @@ function cmdValid(valid) {
   if (valid) {
     getCmdInput().classList.remove('invalid');
     // if the returned cmd is something totally different as what we have
-    // in the input field, it's probably autoexpanded alias
+    // in the input field, and it used to be a string without spaces,
+    // it's probably autoexpanded alias
     let currentValue = getCmdInput().value;
-    if (currentValue.indexOf(valid) != 0 && valid.indexOf(currentValue) != 0) {
+    if (currentValue.trim().indexOf(' ') < 0 &&
+        currentValue.indexOf(valid) != 0 && valid.indexOf(currentValue) != 0) {
       getCmdInput().value = valid;
     }
   } else {
@@ -93,13 +95,12 @@ function updateFromInput(saveAndClear) {
   let input = getCmdInput()
   let cmd = input.value;
   if (saveAndClear) {
-    if (ipc.sendSync('cmd-and-save', cmd)) {
+    let resp = ipc.sendSync('cmd-and-save', cmd);
+    if (resp) {
       input.value = '';
-      cmdValid(true);
       updateTimedb();
-    } else {
-      cmdValid(false);
     }
+    cmdValid(resp);
   } else {
     ipc.send('cmd', cmd);
   }
