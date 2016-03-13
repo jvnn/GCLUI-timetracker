@@ -1,6 +1,9 @@
 'use strict';
 const ipc = require('electron').ipcRenderer;
 
+let recentIssues = [];
+let recentIssueIndex = -1;
+
 document.querySelector('div#close').addEventListener('click', close);
 
 initCmdInput();
@@ -61,19 +64,38 @@ function updateAliases(event, aliases) {
   }
 }
 
-function modifyInputTime(value, minutesToAdd) {
+function modifyInput(value, toAdd) {
+  // case 1: modify time input
   let timeRegex = /@(\d\d\d\d-[0-1]\d-[0-3]\d |)(\d|[0-2]\d):([0-5]\d)$/;
   let groups = value.match(timeRegex);
-  if (!groups) return value;
+  if (groups) {
+    let newValue = value.substr(0, value.lastIndexOf('@') + 1);
+    newValue += groups[1]; // add whatever date stuff we had before the timeRegex
 
-  let newValue = value.substr(0, value.lastIndexOf('@') + 1);
-  newValue += groups[1]; // add whatever date stuff we had before the timeRegex
+    let time = new Date();
+    time.setHours(parseInt(groups[2]));
+    time.setMinutes(parseInt(groups[3]) + toAdd);
+    newValue += formatTime(time);
+    return newValue;
+  }
 
-  let time = new Date();
-  time.setHours(parseInt(groups[2]));
-  time.setMinutes(parseInt(groups[3]) + minutesToAdd);
-  newValue += formatTime(time);
-  return newValue;
+  // nope, wasn't time.
+  // case 2: modify issue
+  let issueRegex = /#[^ ]*$/;
+  groups = value.match(issueRegex);
+  if (groups && recentIssues.length > 0) {
+    if (recentIssueIndex < 0) {
+      // always start with the most recent / oldest
+      recentIssueIndex = toAdd > 0 ? 0 : recentIssues.length - 1;
+    } else {
+      recentIssueIndex = (recentIssueIndex + recentIssues.length + toAdd) % recentIssues.length;
+    }
+    let newValue = value.substr(0, value.lastIndexOf('#') + 1);
+    newValue += recentIssues[recentIssueIndex];
+    return newValue;
+  }
+
+  return value;
 }
 
 function initCmdInput() {
@@ -91,9 +113,9 @@ function initCmdInput() {
       // enter, update and clear
       updateFromInput(true);
     } else if (event.keyCode == 38) { // arrow up
-      input.value = modifyInputTime(input.value, 1);
+      input.value = modifyInput(input.value, 1);
     } else if (event.keyCode == 40) { // arrow down
-      input.value = modifyInputTime(input.value, -1);
+      input.value = modifyInput(input.value, -1);
     } else {
       inputTimer = window.setTimeout(updateFromInput, 1000);
     }
@@ -290,6 +312,16 @@ function renderCalendar(event, data) {
   days.reverse().forEach(function(element) {
     calendar.appendChild(element);
   });
+
+  recentIssues = [];
+  recentIssueIndex = -1;
+  data.forEach(element => {if (element.issue) recentIssues.push(element.issue)});
+  recentIssues = recentIssues.reverse().reduce(function(unique, value) {
+    if (unique.indexOf(value) < 0) {
+      unique.push(value);
+    }
+    return unique;
+  }, []);
 }
 
 function cmdValidation(event, newCmd) {
