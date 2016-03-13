@@ -102,6 +102,7 @@ input {
 .summary {
   font-size: 12px;
   margin-left: 10px;
+  cursor: pointer;
 }
 
 .summary-special {
@@ -110,6 +111,7 @@ input {
   margin-bottom: 3px;
   font-weight: normal;
   display: inline-block;
+  cursor: default;
 }
 
 #close {

@@ -12,5 +12,8 @@
   "author": "Jussi Nieminen",
   "devDependencies": {
     "electron-prebuilt": "^0.35.0"
+  },
+  "dependencies": {
+    "open": "0.0.5"
   }
 }

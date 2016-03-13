@@ -12,6 +12,7 @@ const BrowserWindow = electron.BrowserWindow;
 
 const timedb = require('./timedb.js');
 const cmds = require('./commands.js');
+const reporting = require('./reporting.js');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -68,6 +69,23 @@ ipc.on('cmd-and-save', function(event, cmd) {
 ipc.on('timedb', sendTimeDb);
 
 ipc.on('aliases', sendAliases);
+
+ipc.on('report', function(event, data) {
+  if (!data || !data.issue || !data.time) {
+    debug('invalid report call with object ' + data);
+    return;
+  }
+  debug('issue to report: ' + data.issue + ' ' + data.time);
+
+  if (!reporting.report(data.issue, data.time)) {
+    event.sender.send('request-report-url');
+  }
+})
+
+ipc.on('set-report-url', function(event, data) {
+  // TODO: add validation somewhere
+  reporting.setReportUrl(data);
+})
 
 function sendTimeDb(event) {
   event.sender.send('timedb-reply', timedb.getTimeDb());

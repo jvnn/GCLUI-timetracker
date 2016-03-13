@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const reporting = require('./reporting.js');
 
 const FILENAME = "aliases.json";
 let aliases;
@@ -43,6 +44,21 @@ function parseDefine(cmd, cmdObject, fullRequired) {
   if (cmdObject.alias.length < 2) return null;
 
   cmdObject.cmd = cmd.substr(aliasEnd).trim();
+  return cmd;
+}
+
+function parseReportUrl(cmd, cmdObject, fullRequired) {
+  if (cmd[0] != 'R') return null;
+  if (cmd.length == 1) return fullRequired ? null : cmd;
+  if (cmd[1] != ' ') return null;
+  if (cmd.length == 2) return fullRequired ? null : cmd;
+
+  if (cmd.trim().indexOf(' ', 2) > 0) return null;
+
+  cmdObject.url = cmd.substr(2).trim();
+  if (!cmdObject.url.startsWith("http")) return null;
+  if (cmdObject.url.indexOf('#') < 0 || cmdObject.url.indexOf('@') < 0) return null;
+
   return cmd;
 }
 
@@ -123,6 +139,13 @@ exports.parseCmd = function(cmd, cmdObject, fullRequired) {
   if (parseDefine(cmd, cmdObject, fullRequired)) {
     if (fullRequired) {
       saveAlias(cmdObject);
+    }
+    return cmd;
+  }
+
+  if (parseReportUrl(cmd, cmdObject, fullRequired)) {
+    if (fullRequired) {
+      reporting.setReportUrl(cmdObject.url);
     }
     return cmd;
   }

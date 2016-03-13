@@ -11,6 +11,10 @@ initCmdInput();
 ipc.on('timedb-reply', renderCalendar);
 ipc.on('cmd-validation', cmdValidation);
 ipc.on('aliases-reply', updateAliases);
+ipc.on('request-report-url', function() {
+  alert("Please set a report url using command 'R <url>'. "
+      + "Character '#' will be replaced with the issue code and '@' with the time");
+});
 
 ipc.send('timedb');
 
@@ -123,7 +127,7 @@ function initCmdInput() {
 
   input.addEventListener('keypress', function(event) {
     let c = event.key || event.charCode || event.keyCode;
-    if (String.fromCharCode(c) == '@') {
+    if (String.fromCharCode(c) == '@' && !input.value.startsWith('R ')) {
       // add current time as a default
       input.value += '@' + formatTime(new Date());
       event.preventDefault();
@@ -173,15 +177,26 @@ const TASK_COLORS = [
   "#FFBBDD"
 ];
 
+function reportIssueTime(issue, time) {
+  ipc.send('report', {"issue": issue, "time": time});
+}
+
 function addSummaryElement(div, time, issue, special) {
-  let p = document.createElement('p');
-  p.classList.add('summary');
-  if (special) p.classList.add('summary-special');
+  let e = document.createElement('p');
+  e.classList.add('summary');
   let hoursDecimal = time / 3600000.0;
   let hours = Math.floor(hoursDecimal);
   let minutes = Math.floor((hoursDecimal - hours) * 60);
-  p.innerHTML = issue + " - " + hours + "h " + minutes + "m";
-  div.appendChild(p);
+  let timeString = hours + "h " + minutes + "m";
+  e.innerHTML = issue + " - " + timeString;
+
+  if (special) {
+    e.classList.add('summary-special');
+  } else {
+    e.addEventListener('click', function() {reportIssueTime(issue, timeString);});
+  }
+
+  div.appendChild(e);
 }
 
 function renderSummary(div, summary) {
