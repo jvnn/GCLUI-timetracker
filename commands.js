@@ -23,9 +23,9 @@ function saveAliases() {
 function saveAlias(cmdObject) {
   if (cmdObject.cmd.length == 0) {
     delete aliases[cmdObject.alias];
-    return;
+  } else {
+    aliases[cmdObject.alias] = cmdObject.cmd;
   }
-  aliases[cmdObject.alias] = cmdObject.cmd;
   saveAliases();
 }
 
@@ -128,4 +128,9 @@ exports.parseCmd = function(cmd, cmdObject, fullRequired) {
   }
 
   return parseTimeCmd(cmd, cmdObject, fullRequired);
+}
+
+exports.getAliases = function() {
+  loadAliases();
+  return Object.assign({}, aliases);
 }

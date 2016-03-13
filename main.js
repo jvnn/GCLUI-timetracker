@@ -29,7 +29,7 @@ app.on('ready', function() {
   mainWindow = new BrowserWindow({
     frame: false,
     width: 1200,
-    height: DEBUG ? 800 : 600
+    height: 800
   });
 
   mainWindow.loadURL(`file://${__dirname}/app/index.html`);
@@ -56,12 +56,23 @@ ipc.on('cmd-and-save', function(event, cmd) {
   debug('Received to save: ' + cmd);
   let cmdObject = {};
   let success = cmds.parseCmd(cmd, cmdObject, true);
-  if (success) {
+  if (success && Object.keys(cmdObject).length !== 0) {
     timedb.saveNewEntry(cmdObject);
   }
   event.returnValue = success;
+  // also trigger updates
+  sendTimeDb(event);
+  sendAliases(event);
 })
 
-ipc.on('timedb', function(event, arg) {
+ipc.on('timedb', sendTimeDb);
+
+ipc.on('aliases', sendAliases);
+
+function sendTimeDb(event) {
   event.sender.send('timedb-reply', timedb.getTimeDb());
-})
+}
+
+function sendAliases(event) {
+  event.sender.send('aliases-reply', cmds.getAliases());
+}

@@ -8,8 +8,28 @@
   <body>
     <div id="frame">
       <div id="cmd-line">
-        <h1>{S (start) | A (away) | B (back) | O (out)} [task name] [#issue code] @[yyyy-mm-dd ]hh-mm</h1>
+        <h1>Command: &emsp; ('H' to show/hide help)</h1>
         <input id="cmd" type="text" name="cmd" />
+        <div id="help" class="hidden">
+          <table>
+            <tr>
+              <td class="cmd-name">start a task</td><td class="cmd-example">S [description] [#issue code] @[yyyy-mm-dd ]hh-mm</td>
+            </tr>
+            <tr>
+              <td class="cmd-name">start a pause ("away")</td><td class="cmd-example">A [description] @[yyyy-mm-dd ]hh-mm</td>
+            </tr>
+            <tr>
+              <td class="cmd-name">back from a pause</td><td class="cmd-example">B @[yyyy-mm-dd ]hh-mm</td>
+            </tr>
+            <tr>
+              <td class="cmd-name">end the day ("out")</td><td class="cmd-example">O @[yyyy-mm-dd ]hh-mm</td>
+            </tr>
+            <tr>
+              <td class="cmd-name">define an alias</td><td class="cmd-example">D &lt;alias&gt; &lt;command that the alias expands to&gt;</td>
+            </tr>
+          </table>
+          <table id="aliases"></table>
+        </div>
       </div>
 
       <div id="close">x</div>

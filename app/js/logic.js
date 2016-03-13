@@ -7,11 +7,9 @@ initCmdInput();
 
 ipc.on('timedb-reply', renderCalendar);
 ipc.on('cmd-validation', cmdValidation);
+ipc.on('aliases-reply', updateAliases);
 
-function updateTimedb() {
-  ipc.send('timedb');
-}
-updateTimedb();
+ipc.send('timedb');
 
 function formatTime(time) {
   return (time.getHours() < 10 ? "0" : "") + time.getHours()
@@ -33,6 +31,33 @@ function setValidState(newCmd) {
     }
   } else {
     getCmdInput().classList.add('invalid');
+  }
+}
+
+function showHideHelp() {
+  let help = document.querySelector('div#help');
+  let hidden = help.classList.contains('hidden');
+  if (hidden) {
+    ipc.send('aliases');
+  }
+  help.classList.toggle('hidden');
+}
+
+function updateAliases(event, aliases) {
+  let table = document.querySelector('table#aliases');
+  table.innerHTML = '';
+  for (let alias in aliases) {
+    let row = document.createElement('tr');
+    let aliasCol = document.createElement('td');
+    aliasCol.classList.add('cmd-name');
+    let cmdCol = document.createElement('td');
+    cmdCol.classList.add('cmd-example');
+
+    aliasCol.innerHTML = alias;
+    cmdCol.innerHTML = aliases[alias];
+    row.appendChild(aliasCol);
+    row.appendChild(cmdCol);
+    table.appendChild(row);
   }
 }
 
@@ -94,11 +119,19 @@ function initCmdInput() {
 function updateFromInput(saveAndClear) {
   let input = getCmdInput()
   let cmd = input.value;
+  if (cmd.trim() == 'H') {
+    if (saveAndClear) {
+      showHideHelp();
+      input.value = '';
+    }
+    setValidState('H');
+    return;
+  }
+
   if (saveAndClear) {
     let resp = ipc.sendSync('cmd-and-save', cmd);
     if (resp !== null) {
       input.value = '';
-      updateTimedb();
     }
     setValidState(resp);
   } else {

@@ -20,6 +20,21 @@ h1 {
   font-weight: lighter;
 }
 
+#help > table {
+  font-family: sans;
+  font-size: 12px;
+  margin: 10px 10px;
+  font-weight: lighter;
+}
+
+td.cmd-name {
+  padding: 2px 20px;
+}
+
+td.cmd-example {
+  font-family: monospace;
+}
+
 h2 {
   font-family: sans;
   font-size: 14px;
