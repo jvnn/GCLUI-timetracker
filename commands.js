@@ -57,7 +57,7 @@ function parseReportUrl(cmd, cmdObject, fullRequired) {
 
   cmdObject.url = cmd.substr(2).trim();
   if (!cmdObject.url.startsWith("http")) return null;
-  if (cmdObject.url.indexOf('#') < 0 || cmdObject.url.indexOf('@') < 0) return null;
+  if (cmdObject.url.indexOf('{#}') < 0 || cmdObject.url.indexOf('{@sec}') < 0) return null;
 
   return cmd;
 }

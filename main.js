@@ -71,13 +71,13 @@ ipc.on('timedb', sendTimeDb);
 ipc.on('aliases', sendAliases);
 
 ipc.on('report', function(event, data) {
-  if (!data || !data.issue || !data.time) {
+  if (!data || !data.issue || !data.timeSec || !data.startTime) {
     debug('invalid report call with object ' + data);
     return;
   }
-  debug('issue to report: ' + data.issue + ' ' + data.time);
+  debug('issue to report: ' + data.issue + ' ' + data.timeSec + ' seconds, start time ' + data.startTime);
 
-  if (!reporting.report(data.issue, data.time)) {
+  if (!reporting.report(data.issue, data.timeSec, data.startTime)) {
     event.sender.send('request-report-url');
   }
 })

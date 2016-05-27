@@ -18,13 +18,16 @@ function saveReportUrl() {
   fs.writeFileSync(FILENAME, reportUrl);
 }
 
-exports.report = function(issue, time) {
+exports.report = function(issue, timeSec, startTime) {
   loadReportUrl();
   if (!reportUrl) {
     return false;
   }
 
-  open(reportUrl.replace("#", encodeURIComponent(issue)).replace("@", encodeURIComponent(time)));
+  open(reportUrl
+    .replace("{#}", encodeURIComponent(issue))
+    .replace("{@sec}", encodeURIComponent(timeSec))
+    .replace("{@start}", encodeURIComponent(startTime)));
   return true;
 }
 

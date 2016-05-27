@@ -1,5 +1,6 @@
 'use strict';
 const ipc = require('electron').ipcRenderer;
+const dateFormat = require('dateformat');
 
 let recentIssues = [];
 let recentIssueIndex = -1;
@@ -177,11 +178,11 @@ const TASK_COLORS = [
   "#FFBBDD"
 ];
 
-function reportIssueTime(issue, time) {
-  ipc.send('report', {"issue": issue, "time": time});
+function reportIssueTime(issue, timeSec, startTimeStr) {
+  ipc.send('report', {"issue": issue, "timeSec": timeSec, "startTime": startTimeStr});
 }
 
-function addSummaryElement(div, time, issue, special) {
+function addSummaryElement(div, time, issue, special, startTime) {
   let e = document.createElement('p');
   e.classList.add('summary');
   let hoursDecimal = time / 3600000.0;
@@ -193,13 +194,14 @@ function addSummaryElement(div, time, issue, special) {
   if (special) {
     e.classList.add('summary-special');
   } else {
-    e.addEventListener('click', function() {reportIssueTime(issue, timeString);});
+    let startTimeStr = dateFormat(startTime, "yyyymmddHHMM");
+    e.addEventListener('click', function() {reportIssueTime(issue, Math.round(time / 1000), startTimeStr);});
   }
 
   div.appendChild(e);
 }
 
-function renderSummary(div, summary) {
+function renderSummary(div, summary, dayStartTime) {
   if (!div || !summary) return;
 
   if (summary["__total"]) {
@@ -212,7 +214,7 @@ function renderSummary(div, summary) {
 
   for (let issue in summary) {
     if (!issue.startsWith("__")) {
-      addSummaryElement(div, summary[issue], issue, false);
+      addSummaryElement(div, summary[issue], issue, false, dayStartTime);
     }
   }
 }
@@ -231,7 +233,7 @@ function renderCalendar(event, data) {
   let colorMap = {"__issueless": "#EACDC1"};
   let pauseStartTime = null;
   let previous;
-  let prevDate;
+  let dayStartTime;
   let currentDayDiv;
   let issueSummary;
 
@@ -239,11 +241,12 @@ function renderCalendar(event, data) {
     let time = new Date(element.time);
 
     // handle day changes:
-    if (!prevDate || prevDate.getDate() != time.getDate()) {
+    if (!dayStartTime || dayStartTime.getDate() != time.getDate()) {
       // render summary of previous day
-      renderSummary(currentDayDiv, issueSummary);
+      renderSummary(currentDayDiv, issueSummary, dayStartTime);
       previous = null;
       issueSummary = {};
+      dayStartTime = time;
 
       currentDayDiv = document.createElement('div');
       currentDayDiv.classList.add('day');
@@ -252,7 +255,6 @@ function renderCalendar(event, data) {
       currentDayDiv.appendChild(title);
       days.push(currentDayDiv);
     }
-    prevDate = time;
 
     let newDiv = document.createElement('div');
     newDiv.classList.add('task');
@@ -319,7 +321,7 @@ function renderCalendar(event, data) {
   });
 
   // summary for an incomplete day
-  renderSummary(currentDayDiv, issueSummary);
+  renderSummary(currentDayDiv, issueSummary, dayStartTime);
 
   let calendar = document.querySelector('#calendar');
   calendar.innerHTML = "";
