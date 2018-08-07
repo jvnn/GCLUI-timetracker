@@ -10,10 +10,8 @@
     "timetracking"
   ],
   "author": "Jussi Nieminen",
-  "devDependencies": {
-    "electron-prebuilt": "^0.35.0"
-  },
   "dependencies": {
+    "electron": "^2.0.3",
     "open": "0.0.5",
     "dateformat": "~1.0.12"
   }

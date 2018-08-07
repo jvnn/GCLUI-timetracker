@@ -52,7 +52,7 @@ exports.getTimeDb = function() {
   timeLimit.setMinutes(0);
   timeLimit.setSeconds(0);
   timeLimit.setMilliseconds(0);
-  timeLimit.setDate(timeLimit.getDate() - 7);
+  timeLimit.setDate(timeLimit.getDate() - 14);
 
   return timedb.filter(element => Date.parse(element.time) > timeLimit.getTime());
 }

@@ -14,7 +14,8 @@ ipc.on('cmd-validation', cmdValidation);
 ipc.on('aliases-reply', updateAliases);
 ipc.on('request-report-url', function() {
   alert("Please set a report url using command 'R <url>'. "
-      + "Character '#' will be replaced with the issue code and '@' with the time");
+      + "Character '#' will be replaced with the issue code, "
+      + "'@sec' with the seconds spent and '@start' with the start time");
 });
 
 ipc.send('timedb');
@@ -128,7 +129,7 @@ function initCmdInput() {
 
   input.addEventListener('keypress', function(event) {
     let c = event.key || event.charCode || event.keyCode;
-    if (String.fromCharCode(c) == '@' && !input.value.startsWith('R ')) {
+    if ((c === '@' || String.fromCharCode(c) == '@') && !input.value.startsWith('R ')) {
       // add current time as a default
       input.value += '@' + formatTime(new Date());
       event.preventDefault();
